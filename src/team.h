@@ -89,6 +89,7 @@ public:
     void assignCoach( OnlineCoach * coach );
 
     void assignPlayerTypes();
+    void embeddedRegisterPlayer( const int unum );
 
     void setName( const char * name )
       {

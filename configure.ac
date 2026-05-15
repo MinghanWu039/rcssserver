@@ -196,6 +196,23 @@ LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
 #LIBS="$LIBS $BOOST_FILESYSTEM_LIB"
 
 ##################################################
+# optional matplotlib-cpp for embeddedsimulator smoke
+##################################################
+
+AC_ARG_VAR(MATPLOTLIB_CPP_CXXFLAGS, [compiler flags for matplotlib-cpp])
+AC_ARG_VAR(MATPLOTLIB_CPP_LIBS, [linker flags for matplotlib-cpp and Python])
+
+save_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $MATPLOTLIB_CPP_CXXFLAGS"
+AC_CHECK_HEADER([matplotlibcpp.h],
+                [HAVE_MATPLOTLIB_CPP=1],
+                [HAVE_MATPLOTLIB_CPP=0])
+CPPFLAGS="$save_CPPFLAGS"
+AC_SUBST(MATPLOTLIB_CPP_CXXFLAGS)
+AC_SUBST(MATPLOTLIB_CPP_LIBS)
+AC_SUBST(HAVE_MATPLOTLIB_CPP)
+
+##################################################
 # enable/disable rcssclient
 ##################################################
 

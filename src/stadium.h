@@ -146,6 +146,15 @@ public:
     ~Stadium() override;
 
     bool init();
+    bool setEmbeddedTeamName( Side side, const std::string & name );
+    bool enableEmbeddedPlayer( Side side,
+                               int unum,
+                               double version = 18.0,
+                               bool goalie = false );
+    bool applyEmbeddedPlayerCommand( Side side,
+                                     int unum,
+                                     const std::string & command );
+    void startEmbeddedKickoff();
 
     void finalize( const std::string & msg );
 

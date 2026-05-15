@@ -304,6 +304,127 @@ Stadium::init()
     return true;
 }
 
+bool
+Stadium::setEmbeddedTeamName( Side side, const std::string & name )
+{
+    if ( side != LEFT && side != RIGHT )
+    {
+        return false;
+    }
+
+    if ( name.empty() )
+    {
+        return false;
+    }
+
+    Team * team = ( side == LEFT ? M_team_l : M_team_r );
+    if ( ! team )
+    {
+        return false;
+    }
+
+    if ( team->name().empty() )
+    {
+        team->setName( name.c_str() );
+        return true;
+    }
+
+    return team->name() == name;
+}
+
+bool
+Stadium::enableEmbeddedPlayer( Side side,
+                               int unum,
+                               double version,
+                               bool goalie )
+{
+    if ( side != LEFT && side != RIGHT )
+    {
+        return false;
+    }
+
+    if ( unum <= 0 || MAX_PLAYER < unum )
+    {
+        return false;
+    }
+
+    Team * team = ( side == LEFT ? M_team_l : M_team_r );
+    if ( ! team || team->name().empty() )
+    {
+        return false;
+    }
+
+    Player * player = getPlayer( side, unum );
+    if ( ! player )
+    {
+        return false;
+    }
+
+    if ( player->isEnabled() )
+    {
+        return ! goalie || player->isGoalie();
+    }
+
+    if ( goalie )
+    {
+        for ( int i = 0; i < MAX_PLAYER; ++i )
+        {
+            const Player * teammate = getPlayer( side, i + 1 );
+            if ( teammate
+                 && teammate->isEnabled()
+                 && teammate->isGoalie()
+                 && teammate->unum() != unum )
+            {
+                return false;
+            }
+        }
+    }
+
+    if ( ! player->init( version, goalie ) )
+    {
+        return false;
+    }
+
+    team->embeddedRegisterPlayer( unum );
+
+    if ( std::find( M_remote_players.begin(), M_remote_players.end(), player )
+         == M_remote_players.end() )
+    {
+        M_remote_players.push_back( player );
+    }
+
+    if ( std::find( M_movable_objects.begin(), M_movable_objects.end(), player )
+         == M_movable_objects.end() )
+    {
+        M_movable_objects.push_back( player );
+    }
+
+    return true;
+}
+
+bool
+Stadium::applyEmbeddedPlayerCommand( Side side,
+                                     int unum,
+                                     const std::string & command )
+{
+    Player * player = getPlayer( side, unum );
+    if ( ! player || ! player->isEnabled() || command.empty() )
+    {
+        return false;
+    }
+
+    std::vector< char > buffer( command.begin(), command.end() );
+    buffer.push_back( '\0' );
+    player->parseMsg( buffer.data(), command.size() );
+    return true;
+}
+
+void
+Stadium::startEmbeddedKickoff()
+{
+    kickOff();
+}
+
 void
 Stadium::checkAutoMode()
 {

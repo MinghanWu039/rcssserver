@@ -2,14 +2,18 @@
 bin_PROGRAMS = \
 	rcssserver @RCSSCLIENT@
 
+noinst_PROGRAMS = \
+	embeddedsimulator_smoke
+
 bin_SCRIPTS = rcsoccersim
 
-rcssserver_SOURCES = \
+RCSSSERVER_CORE_SOURCES = \
 	audio.cpp \
 	bodysender.cpp \
 	coach.cpp \
 	csvsaver.cpp \
 	dispsender.cpp \
+	embedded_simulator/embeddedsimulator.cpp \
 	field.cpp \
 	fullstatesender.cpp \
 	heteroplayer.cpp \
@@ -22,7 +26,6 @@ rcssserver_SOURCES = \
 	landmarkreader.cpp \
 	leg.cpp \
 	logger.cpp \
-	main.cpp \
 	monitor.cpp \
 	pcombuilder.cpp \
 	pcomparser.cpp \
@@ -69,7 +72,19 @@ rcssserver_SOURCES = \
 	xmlreader.cpp \
 	xpmholder.cpp
 
+rcssserver_SOURCES = \
+	$(RCSSSERVER_CORE_SOURCES) \
+	main.cpp
+
+embeddedsimulator_smoke_SOURCES = \
+	$(RCSSSERVER_CORE_SOURCES) \
+	embedded_simulator/embeddedsimulator_smoke.cpp
+
 nodist_rcssserver_SOURCES = \
+	player_command_parser.ypp \
+	player_command_tok.cpp
+
+nodist_embeddedsimulator_smoke_SOURCES = \
 	player_command_parser.ypp \
 	player_command_tok.cpp
 
@@ -81,6 +96,7 @@ noinst_HEADERS = \
 	compress.h \
 	csvsaver.h \
 	dispsender.h \
+	embedded_simulator/embeddedsimulator.h \
 	field.h \
 	fullstatesender.h \
 	heteroplayer.h \
@@ -162,6 +178,25 @@ rcssserver_LDADD = \
 	-lrcssgz \
 	$(BOOST_FILESYSTEM_LIB) $(BOOST_SYSTEM_LIB)
 
+embeddedsimulator_smoke_LDFLAGS = \
+	-L$(top_builddir)/rcss/clang \
+	-L$(top_builddir)/rcss/conf \
+	-L$(top_builddir)/rcss/net \
+	-L$(top_builddir)/rcss/gzip
+
+embeddedsimulator_smoke_LDADD = \
+	-lrcssclangparser \
+	-lrcssconfparser \
+	-lrcssnet \
+	-lrcssgz \
+	$(MATPLOTLIB_CPP_LIBS) \
+	$(BOOST_FILESYSTEM_LIB) $(BOOST_SYSTEM_LIB)
+
+embeddedsimulator_smoke_CPPFLAGS = \
+	$(AM_CPPFLAGS) \
+	$(MATPLOTLIB_CPP_CXXFLAGS) \
+	-DRCSSSERVER_HAVE_MATPLOTLIB_CPP=$(HAVE_MATPLOTLIB_CPP)
+
 
 BUILT_SOURCES = \
 	player_command_parser.hpp \
@@ -213,6 +248,10 @@ AM_CXXFLAGS = -W -Wall
 
 EXTRA_DIST = \
 	CMakeLists.txt \
+	embedded_simulator/embeddedsimulator.h \
+	embedded_simulator/embeddedsimulator.cpp \
+	embedded_simulator/embeddedsimulator_smoke.cpp \
+	embedded_simulator/pybind_embeddedsimulator.cpp \
 	fix_lexer_file.cmake \
 	player_command_parser.ypp \
 	player_command_tok.lpp \

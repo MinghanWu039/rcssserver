@@ -31,6 +31,8 @@
 #include "playerparam.h"
 #include "xpmholder.h"
 
+#include <algorithm>
+
 Team::Team( Stadium * stad, const Side s )
     : M_stadium( stad ),
       M_name( "" ),
@@ -164,6 +166,12 @@ Team::assignPlayerTypes()
 
     for ( int i = 0; i < size(); ++i )
     {
+        if ( ! M_players[i]
+             || ! M_players[i]->isEnabled() )
+        {
+            continue;
+        }
+
         int type = ( M_players[i]->substituted()
                      ? M_players[i]->playerTypeId()
                      : -1 );
@@ -252,6 +260,17 @@ Team::assignPlayerTypes()
 //         std::cout << " (" << i+1 << "-" << M_players[i]->playerTypeId() << ')';
 //     }
 //     std::cout << std::endl;
+}
+
+void
+Team::embeddedRegisterPlayer( const int unum )
+{
+    if ( unum <= 0 || MAX_PLAYER < unum )
+    {
+        return;
+    }
+
+    M_size = std::max( M_size, unum );
 }
 
 std::string
