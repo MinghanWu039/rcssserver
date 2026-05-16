@@ -172,6 +172,7 @@ if(NOT RCSSSERVER_PYTHON_PACKAGE_ONLY)
 
   target_link_libraries(RCSSServer
     PRIVATE
+      RCSS::Flex
       RCSS::CLangParser
       RCSS::ConfParser
       RCSS::Net
@@ -202,6 +203,7 @@ if(NOT RCSSSERVER_PYTHON_PACKAGE_ONLY)
 
   target_link_libraries(EmbeddedSimulatorSmoke
     PRIVATE
+      RCSS::Flex
       RCSS::CLangParser
       RCSS::ConfParser
       RCSS::Net
@@ -255,6 +257,7 @@ pybind11_add_module(rcssserver_embedded_core
 
 target_link_libraries(rcssserver_embedded_core
   PRIVATE
+    RCSS::Flex
     RCSS::CLangParser
     RCSS::ConfParser
     RCSS::Net

@@ -50,6 +50,7 @@ add_library(RCSS::CLangParser ALIAS RCSSCLangParser)
 
 target_link_libraries(RCSSCLangParser
   PUBLIC
+    RCSS::Flex
     Boost::boost
   )
 
