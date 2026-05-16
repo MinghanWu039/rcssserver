@@ -9,6 +9,10 @@ mkdir -p "${DIST_DIR}"
 
 CMAKE_ARGS_VALUE="${CMAKE_ARGS:-}"
 
+if [[ "${OSTYPE:-}" == darwin* && -z "${CMAKE_GENERATOR:-}" ]]; then
+  export CMAKE_GENERATOR="Unix Makefiles"
+fi
+
 if [[ -n "${CONDA_PREFIX:-}" ]]; then
   CMAKE_ARGS_VALUE="${CMAKE_ARGS_VALUE} -DPython3_EXECUTABLE=${CONDA_PREFIX}/bin/python -DPython3_ROOT_DIR=${CONDA_PREFIX}"
 
