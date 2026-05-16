@@ -1,0 +1,28 @@
+[build-system]
+requires = [
+  "scikit-build-core>=0.10",
+  "pybind11>=3.0",
+  "numpy",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "rcssserver-embedded"
+version = "0.1.0"
+description = "Embedded Python bindings for the RoboCup Soccer Simulator server"
+readme = "EMBEDDED_SIMULATOR_INTERFACE.md"
+requires-python = ">=3.11"
+
+[tool.scikit-build]
+wheel.packages = ["python/rcssserver_embedded"]
+cmake.build-type = "Release"
+sdist.include = [
+  "python/rcssserver_embedded/__init__.py",
+  "src/embedded_simulator/*",
+  "rcss/*",
+  "EMBEDDED_SIMULATOR_INTERFACE.md",
+  "demo.py",
+]
+
+[tool.scikit-build.cmake.define]
+RCSSSERVER_PYTHON_PACKAGE_ONLY = "ON"
