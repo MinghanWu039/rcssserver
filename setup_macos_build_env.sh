@@ -1,44 +1,48 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+_setup_macos_build_env() {
+  set -euo pipefail
 
-if [[ "${OSTYPE:-}" != darwin* ]]; then
-  echo "This script is for macOS only." >&2
-  return 1 2>/dev/null || exit 1
-fi
+  if [[ "${OSTYPE:-}" != darwin* ]]; then
+    echo "This script is for macOS only." >&2
+    return 1
+  fi
 
-if ! command -v brew >/dev/null 2>&1; then
-  echo "Homebrew is required but was not found on PATH." >&2
-  return 1 2>/dev/null || exit 1
-fi
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "Homebrew is required but was not found on PATH." >&2
+    return 1
+  fi
 
-BREW_PREFIX="$(brew --prefix)"
+  local brew_prefix
+  local cmake_args_value
 
-brew install bison flex m4 cmake boost zlib
+  brew_prefix="$(brew --prefix)"
 
-export PATH="${BREW_PREFIX}/opt/bison/bin:${BREW_PREFIX}/opt/flex/bin:${BREW_PREFIX}/bin:${PATH}"
-export CMAKE_GENERATOR="${CMAKE_GENERATOR:-Unix Makefiles}"
-export CMAKE_PREFIX_PATH="${BREW_PREFIX}${CMAKE_PREFIX_PATH:+:${CMAKE_PREFIX_PATH}}"
-export CPPFLAGS="-I${BREW_PREFIX}/opt/zlib/include ${CPPFLAGS:-}"
-export LDFLAGS="-L${BREW_PREFIX}/opt/zlib/lib ${LDFLAGS:-}"
-export PKG_CONFIG_PATH="${BREW_PREFIX}/opt/zlib/lib/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
-export BOOST_ROOT="${BREW_PREFIX}"
-export Boost_ROOT="${BREW_PREFIX}"
+  brew install bison flex m4 cmake boost zlib
 
-CMAKE_ARGS_VALUE="${CMAKE_ARGS:-}"
-CMAKE_ARGS_VALUE="${CMAKE_ARGS_VALUE} -DBISON_EXECUTABLE=${BREW_PREFIX}/opt/bison/bin/bison"
-CMAKE_ARGS_VALUE="${CMAKE_ARGS_VALUE} -DFLEX_EXECUTABLE=${BREW_PREFIX}/opt/flex/bin/flex"
-CMAKE_ARGS_VALUE="${CMAKE_ARGS_VALUE} -DBOOST_ROOT=${BREW_PREFIX}"
-CMAKE_ARGS_VALUE="${CMAKE_ARGS_VALUE} -DBoost_ROOT=${BREW_PREFIX}"
-CMAKE_ARGS_VALUE="${CMAKE_ARGS_VALUE} -DBoost_NO_BOOST_CMAKE=ON"
+  export PATH="${brew_prefix}/opt/bison/bin:${brew_prefix}/opt/flex/bin:${brew_prefix}/bin:${PATH}"
+  export CMAKE_GENERATOR="${CMAKE_GENERATOR:-Unix Makefiles}"
+  export CMAKE_PREFIX_PATH="${brew_prefix}${CMAKE_PREFIX_PATH:+:${CMAKE_PREFIX_PATH}}"
+  export CPPFLAGS="-I${brew_prefix}/opt/zlib/include ${CPPFLAGS:-}"
+  export LDFLAGS="-L${brew_prefix}/opt/zlib/lib ${LDFLAGS:-}"
+  export PKG_CONFIG_PATH="${brew_prefix}/opt/zlib/lib/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
+  export BOOST_ROOT="${brew_prefix}"
+  export Boost_ROOT="${brew_prefix}"
 
-if [[ -n "${CONDA_PREFIX:-}" ]]; then
-  export CMAKE_IGNORE_PREFIX_PATH="${CONDA_PREFIX}${CMAKE_IGNORE_PREFIX_PATH:+:${CMAKE_IGNORE_PREFIX_PATH}}"
-fi
+  cmake_args_value="${CMAKE_ARGS:-}"
+  cmake_args_value="${cmake_args_value} -DBISON_EXECUTABLE=${brew_prefix}/opt/bison/bin/bison"
+  cmake_args_value="${cmake_args_value} -DFLEX_EXECUTABLE=${brew_prefix}/opt/flex/bin/flex"
+  cmake_args_value="${cmake_args_value} -DBOOST_ROOT=${brew_prefix}"
+  cmake_args_value="${cmake_args_value} -DBoost_ROOT=${brew_prefix}"
+  cmake_args_value="${cmake_args_value} -DBoost_NO_BOOST_CMAKE=ON"
 
-export CMAKE_ARGS="${CMAKE_ARGS_VALUE# }"
+  if [[ -n "${CONDA_PREFIX:-}" ]]; then
+    export CMAKE_IGNORE_PREFIX_PATH="${CONDA_PREFIX}${CMAKE_IGNORE_PREFIX_PATH:+:${CMAKE_IGNORE_PREFIX_PATH}}"
+  fi
 
-cat <<EOF
+  export CMAKE_ARGS="${cmake_args_value# }"
+
+  cat <<EOF
 macOS build environment is ready.
 
 Active settings:
@@ -53,3 +57,7 @@ Next steps:
   python -m pip install -U pip scikit-build-core pybind11 numpy
   ./build_pip_package.sh
 EOF
+}
+
+_setup_macos_build_env "$@"
+unset -f _setup_macos_build_env 2>/dev/null || true
