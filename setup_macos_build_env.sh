@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 _setup_macos_build_env() {
-  set -euo pipefail
-
   if [[ "${OSTYPE:-}" != darwin* ]]; then
     echo "This script is for macOS only." >&2
     return 1
@@ -16,11 +14,11 @@ _setup_macos_build_env() {
   local brew_prefix
   local cmake_args_value
 
-  brew_prefix="$(brew --prefix)"
+  brew_prefix="$(brew --prefix)" || return 1
 
-  brew install bison flex m4 cmake boost zlib
+  brew install bison flex m4 cmake boost zlib || return 1
 
-  export PATH="${brew_prefix}/opt/bison/bin:${brew_prefix}/opt/flex/bin:${brew_prefix}/bin:${PATH}"
+  export PATH="${brew_prefix}/opt/bison/bin:${brew_prefix}/opt/flex/bin:${brew_prefix}/opt/m4/bin:${brew_prefix}/bin:${PATH}"
   export CMAKE_GENERATOR="${CMAKE_GENERATOR:-Unix Makefiles}"
   export CMAKE_PREFIX_PATH="${brew_prefix}${CMAKE_PREFIX_PATH:+:${CMAKE_PREFIX_PATH}}"
   export CPPFLAGS="-I${brew_prefix}/opt/zlib/include ${CPPFLAGS:-}"
@@ -28,6 +26,7 @@ _setup_macos_build_env() {
   export PKG_CONFIG_PATH="${brew_prefix}/opt/zlib/lib/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
   export BOOST_ROOT="${brew_prefix}"
   export Boost_ROOT="${brew_prefix}"
+  export M4="${brew_prefix}/opt/m4/bin/m4"
 
   cmake_args_value="${CMAKE_ARGS:-}"
   cmake_args_value="${cmake_args_value} -DBISON_EXECUTABLE=${brew_prefix}/opt/bison/bin/bison"
@@ -51,6 +50,7 @@ Active settings:
   CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
   CMAKE_IGNORE_PREFIX_PATH=${CMAKE_IGNORE_PREFIX_PATH:-}
   BOOST_ROOT=${BOOST_ROOT}
+  M4=${M4}
   CMAKE_ARGS=${CMAKE_ARGS}
 
 Next steps:
