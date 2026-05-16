@@ -18,11 +18,14 @@ cmake.version = ">=3.15"
 wheel.packages = ["python/rcssserver_embedded"]
 cmake.build-type = "Release"
 sdist.include = [
-  "python/rcssserver_embedded/__init__.py",
-  "src/embedded_simulator/*",
-  "rcss/*",
+  "CMakeLists.txt",
+  "config.h.cmake",
+  "python/**",
+  "src/**",
+  "rcss/**",
   "EMBEDDED_SIMULATOR_INTERFACE.md",
   "demo.py",
+  "build_pip_package.sh",
 ]
 
 [tool.scikit-build.cmake.define]
